@@ -20,6 +20,7 @@ async function run() {
         await client.connect();
 
         const serviceCollection = client.db('doctors_portal').collection('services');
+        const bookingCollection = client.db('doctors_portal').collection('bookings');
 
         app.get('/service', async (req, res) => {
             const query = {};
@@ -27,6 +28,27 @@ async function run() {
             const services = await cursor.toArray();
             res.send(services);
         })
+
+        /**
+         * API Naming Convention  
+         * app.get('/booking')  // get all bookings in this collection. Or, get more than one. Or, filter query
+         * app.get('/booking/:id')  // get a specific booking
+         * app.post('/booking')  // add a new booking (create operation chalano hocche ekhane)
+         * app.patch('/booking/:id')  // update kora hocche specific 1 ta ke
+         * app.delete('/booking/:id')
+        */
+
+        app.post('/booking', async (req, res) => {
+            const booking = req.body;  // post er data body er moddhe thake // client side theke pathano
+            const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient }
+            const exists = await bookingCollection.findOne(query);
+            if (exists) {
+                return res.send({ success: false, booking: exists })
+            }
+            const result = await bookingCollection.insertOne(booking);
+            return res.send({ success: true, result });
+        })
+
     }
 
     finally {
