@@ -36,15 +36,11 @@ async function run() {
         app.get('/available', async (req, res) => {
             // const date = req.query.date || 'May 24, 2022';
             const date = req.query.date;
-
             // step 1 : get all services
-
             const services = await serviceCollection.find().toArray();
-
             // step 2 : get the booking of that day. output: [{}, {}, {}, {}, {}, {}]
             const query = { date: date }
             const bookings = await bookingCollection.find(query).toArray();
-
             // step 3 : for each service
             services.forEach(service => {
                 // step 4 : find bookings for that service. output: [{}, {}, {}, {}]
@@ -68,6 +64,15 @@ async function run() {
          * app.patch('/booking/:id')  // update kora hocche specific 1 ta ke
          * app.delete('/booking/:id')
         */
+
+
+        app.get('/booking', async (req, res) => {
+            const patient = req.query.patient;
+            console.log(patient);
+            const query = { patient: patient };
+            const bookings = await bookingCollection.find(query).toArray();
+            res.send(bookings);
+        })
 
         app.post('/booking', async (req, res) => {
             const booking = req.body;  // post er data body er moddhe thake // client side theke pathano
