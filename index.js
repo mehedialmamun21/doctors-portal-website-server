@@ -201,8 +201,6 @@ async function run() {
 }
 run().catch(console.dir);
 
-// git comment
-
 app.get('/', (req, res) => {
     res.send('Hello From Doctors Portal!')
 })
