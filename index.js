@@ -45,6 +45,7 @@ async function run() {
         const userCollection = client.db('doctors_portal').collection('users');
         const doctorCollection = client.db('doctors_portal').collection('doctors');
         const reviewCollection = client.db('doctors_portal').collection('reviews');
+        const paymentCollection = client.db('doctors_portal').collection('payments');
 
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded.email;
@@ -60,7 +61,7 @@ async function run() {
 
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
             const service = req.body;
-            console.log(service);
+            // console.log(service);
             const price = service.price;
             const amount = price * 100;
             const paymentIntent = await stripe.paymentIntents.create({
@@ -199,17 +200,35 @@ async function run() {
         })
 
 
-
         app.post('/booking', async (req, res) => {
-            const booking = req.body;  // post er data body er moddhe thake // client side theke pathano
+            const booking = req.body;  // post data remains in body & it is from client side.
             const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient }
             const exists = await bookingCollection.findOne(query);
             if (exists) {
                 return res.send({ success: false, booking: exists })
             }
             const result = await bookingCollection.insertOne(booking);
+            // console.log('sending email');
+            // sendAppointmentEmail(booking);
             return res.send({ success: true, result });
         });
+
+
+        app.patch('/booking/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                }
+            }
+            const result = await paymentCollection.insertOne(payment);
+            const updatedBooking = await bookingCollection.updateOne(filter, updatedDoc);
+            res.send(updatedDoc);
+        })
+
 
         app.get('/doctor', verifyJWT, verifyAdmin, async (req, res) => {
             const doctors = await doctorCollection.find().toArray();
