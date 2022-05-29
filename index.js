@@ -4,10 +4,15 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
+// const nodemailer = require('nodemailer');
+// const sgTransport = require('nodemailer-sendgrid-transport');
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const app = express()
 const port = process.env.PORT || 5000;
 
-// middleware
+// middleware //
 app.use(cors());
 app.use(express.json());
 
@@ -39,6 +44,7 @@ async function run() {
         const bookingCollection = client.db('doctors_portal').collection('bookings');
         const userCollection = client.db('doctors_portal').collection('users');
         const doctorCollection = client.db('doctors_portal').collection('doctors');
+        const reviewCollection = client.db('doctors_portal').collection('reviews');
 
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded.email;
@@ -51,12 +57,42 @@ async function run() {
             }
         }
 
+
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+            const service = req.body;
+            console.log(service);
+            const price = service.price;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+        });
+
+
         app.get('/service', async (req, res) => {
             const query = {};
             const cursor = serviceCollection.find(query).project({ name: 1 });
             const services = await cursor.toArray();
             res.send(services);
         })
+
+        // POST review
+        app.post('/review', async (req, res) => {
+            const newReview = req.body;
+            const result = await reviewCollection.insertOne(newReview);
+            res.send(result);
+        })
+
+        // GET review
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
 
         app.get('/user', verifyJWT, async (req, res) => {
             const users = await userCollection.find().toArray();
@@ -200,6 +236,7 @@ async function run() {
     }
 }
 run().catch(console.dir);
+
 
 app.get('/', (req, res) => {
     res.send('Hello From Doctors Portal!')
