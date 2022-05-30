@@ -4,9 +4,6 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
-// const nodemailer = require('nodemailer');
-// const sgTransport = require('nodemailer-sendgrid-transport');
-
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express()
