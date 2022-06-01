@@ -58,7 +58,6 @@ async function run() {
 
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
             const service = req.body;
-            // console.log(service);
             const price = service.price;
             const amount = price * 100;
             const paymentIntent = await stripe.paymentIntents.create({
@@ -68,7 +67,6 @@ async function run() {
             });
             res.send({ clientSecret: paymentIntent.client_secret })
         });
-
 
         app.get('/service', async (req, res) => {
             const query = {};
@@ -124,7 +122,6 @@ async function run() {
             res.send(result);
         })
 
-
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -175,7 +172,6 @@ async function run() {
          * app.delete('/booking/:id')
         */
 
-
         app.get('/booking', verifyJWT, async (req, res) => {
             const patient = req.query.patient;
             const decodedEmail = req.decoded.email;
@@ -196,7 +192,6 @@ async function run() {
             res.send(booking);
         })
 
-
         app.post('/booking', async (req, res) => {
             const booking = req.body;  // post data remains in body & it is from client side.
             const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient }
@@ -209,7 +204,6 @@ async function run() {
             // sendAppointmentEmail(booking);
             return res.send({ success: true, result });
         });
-
 
         app.patch('/booking/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
