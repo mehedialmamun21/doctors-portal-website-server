@@ -221,8 +221,8 @@ async function run() {
             res.send(updatedDoc);
         })
 
-
-        app.get('/doctor', verifyJWT, verifyAdmin, async (req, res) => {
+        // verifyJWT, verifyAdmin,
+        app.get('/doctor', async (req, res) => {
             const doctors = await doctorCollection.find().toArray();
             res.send(doctors);
         })
