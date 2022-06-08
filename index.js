@@ -54,7 +54,6 @@ async function run() {
             }
         }
 
-
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
             const service = req.body;
             const price = service.price;
@@ -102,14 +101,12 @@ async function run() {
             res.send(result);
         })
 
-
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
             const user = await userCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin })
         })
-
 
         app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
             const email = req.params.email;
@@ -219,7 +216,6 @@ async function run() {
             res.send(updatedDoc);
         })
 
-        // verifyJWT, verifyAdmin,
         app.get('/doctor', async (req, res) => {
             const doctors = await doctorCollection.find().toArray();
             res.send(doctors);
