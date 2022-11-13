@@ -98,7 +98,6 @@ async function run() {
             res.send(users);
         })
 
-
         app.delete('/user/:email', verifyJWT, verifyAdmin, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
@@ -136,7 +135,6 @@ async function run() {
             res.send({ result, token });
         })
 
-
         app.get('/available', async (req, res) => {
             const date = req.query.date;
             const services = await serviceCollection.find().toArray();
@@ -150,7 +148,6 @@ async function run() {
             });
             res.send(services);
         })
-
 
         app.get('/booking', verifyJWT, async (req, res) => {
             const patient = req.query.patient;
@@ -225,7 +222,6 @@ async function run() {
     }
 }
 run().catch(console.dir);
-
 
 app.get('/', (req, res) => {
     res.send('Hello From Doctors Portal!')
