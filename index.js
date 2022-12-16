@@ -202,6 +202,16 @@ async function run() {
             res.send(doctors);
         })
 
+
+        // prescription section
+
+        app.get('/doctor/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const doctor = await doctorCollection.findOne(query);
+            res.send(doctor);
+        });
+
         app.post('/doctor', verifyJWT, verifyAdmin, async (req, res) => {
             const doctor = req.body;
             const result = await doctorCollection.insertOne(doctor);
