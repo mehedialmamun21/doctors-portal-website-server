@@ -46,6 +46,8 @@ async function run() {
         const doctorCollection = client.db('doctors_portal').collection('doctors');
         const reviewCollection = client.db('doctors_portal').collection('reviews');
         const paymentCollection = client.db('doctors_portal').collection('payments');
+        const menuCollection = client.db('doctors_portal').collection('menu');
+        const cartCollection = client.db('doctors_portal').collection('carts');
 
         // admin verification
         const verifyAdmin = async (req, res, next) => {
@@ -59,6 +61,37 @@ async function run() {
             }
         }
 
+        // Get Menu Items
+        app.get('/menu', async (req, res) => {
+            const result = await menuCollection.find().toArray();
+            res.send(result);
+        })
+
+        // Cart Collection
+        app.get('/carts', async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                res.send([]);
+            }
+            const query = { email: email };
+            const result = await cartCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        app.post('/carts', async (req, res) => {
+            const item = req.body;
+            // console.log(item);
+            const result = await cartCollection.insertOne(item);
+            res.send(result);
+        })
+
+        app.delete('/carts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        })
+
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
             const service = req.body;
             const price = service.price;
@@ -71,6 +104,7 @@ async function run() {
             res.send({ clientSecret: paymentIntent.client_secret })
         });
 
+        // Get all Service
         app.get('/service', async (req, res) => {
             const query = {};
             const cursor = serviceCollection.find(query).project({ name: 1 });
