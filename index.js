@@ -120,7 +120,40 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const result = await cartCollection.deleteOne(query);
             res.send(result);
-        })
+        });
+
+
+        // Route to update the quantity of an item in the cart
+        app.patch('/carts/:id', async (req, res) => {
+            const itemId = req.params.id;
+            const updatedQuantity = req.body.quantity;
+
+            const query = { _id: new ObjectId(itemId) };
+
+            try {
+                const itemToUpdate = await cartCollection.findOne(query);
+                if (!itemToUpdate) {
+                    return res.status(404).json({ message: 'Item not found' });
+                }
+
+                // Update the item's quantity
+                await cartCollection.updateOne(query, { $set: { quantity: updatedQuantity } });
+
+                // Recalculate the total price
+                const cart = await cartCollection.find({}).toArray();
+                const total = cart.reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0);
+
+                res.json({
+                    message: 'Quantity updated',
+                    updatedItem: itemToUpdate,
+                    total,
+                });
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        });
+
 
         // create payment intent
 
