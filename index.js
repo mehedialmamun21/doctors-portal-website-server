@@ -82,6 +82,21 @@ async function run() {
             res.send(result);
         })
 
+        // Update Menu Items
+        app.put('/menu/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updatedItem = req.body; // The updated item data
+            const updateResult = await menuCollection.updateOne(query, { $set: updatedItem });
+
+            if (updateResult.modifiedCount > 0) {
+                res.send({ message: 'Item updated successfully' });
+            } else {
+                res.status(404).send({ error: 'Item not found' });
+            }
+        });
+
+
         // Cart Collection
         app.get('/carts', async (req, res) => {
             const email = req.query.email;
