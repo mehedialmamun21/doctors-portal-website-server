@@ -211,6 +211,8 @@ async function run() {
             res.send({ admin: isAdmin })
         })
 
+        // To give "admin role" by Admin
+
         app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
@@ -220,6 +222,19 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
+
+        // To give "doctor role" by Admin
+
+        app.put('/user/doctor/:email', verifyJWT, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'doctor' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
 
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
@@ -233,10 +248,6 @@ async function run() {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
             res.send({ result, token });
         })
-
-
-
-
 
 
         // Add a new route to check if a user is a doctor
@@ -256,9 +267,6 @@ async function run() {
         });
 
 
-
-
-
         // To show all appointment details in Admin portal and Doctor Profile
         app.get('/api/appointments', async (req, res) => {
             try {
@@ -269,8 +277,6 @@ async function run() {
                 res.status(500).json({ message: 'Internal server error' });
             }
         });
-
-
 
 
 
