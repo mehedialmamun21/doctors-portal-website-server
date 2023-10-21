@@ -234,6 +234,46 @@ async function run() {
             res.send({ result, token });
         })
 
+
+
+
+
+
+        // Add a new route to check if a user is a doctor
+        app.get('/checkDoctorRole/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            // Check if the user has the role of a doctor
+            if (user.role === 'doctor') {
+                res.json({ isDoctor: true });
+            } else {
+                res.json({ isDoctor: false });
+            }
+        });
+
+
+
+
+
+        // To show all appointment details in Admin portal and Doctor Profile
+        app.get('/api/appointments', async (req, res) => {
+            try {
+                const appointments = await bookingCollection.find().toArray();
+                res.json(appointments);
+            } catch (error) {
+                console.error('Error fetching appointments:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        });
+
+
+
+
+
         app.get('/available', async (req, res) => {
             const date = req.query.date;
             const services = await serviceCollection.find().toArray();
