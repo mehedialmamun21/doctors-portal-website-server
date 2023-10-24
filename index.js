@@ -370,6 +370,33 @@ async function run() {
             res.send(result);
         })
 
+        // To Delete Appointments from user 
+        app.delete('/booking/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+
+            try {
+                // Check if the appointment exists
+                const appointment = await bookingCollection.findOne(query);
+                if (!appointment) {
+                    return res.status(404).json({ message: 'Appointment not found' });
+                }
+
+                // Check if the user trying to delete the appointment is the owner (patient)
+                if (appointment.patient !== req.decoded.email) {
+                    return res.status(403).json({ message: 'Forbidden access' });
+                }
+
+                // Delete the appointment
+                const result = await bookingCollection.deleteOne(query);
+                res.json({ message: 'Appointment deleted', deletedAppointment: appointment });
+            } catch (error) {
+                console.error('Error deleting appointment:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        });
+
+
     }
 
     finally {
